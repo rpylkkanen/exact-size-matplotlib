@@ -188,7 +188,7 @@ for a in alignments.get('d').flatten():
 	a.set_height(height - a.spacing_height())	
 ```
 
-Now, the only thing left to do is plot some data and save the panels. The code for combining them using PIL is given in merge_example_3.py.
+Now, the only thing left to do is plot some data and save the panels. The code for combining them using PIL is given in merge_example_3.py. The resulting individual figures are shown below.
 
 ```python
 for key, alignment in alignments.items():
@@ -227,3 +227,9 @@ for key, alignment in alignments.items():
 	fig.savefig(f'examples/example_3{key}.png', dpi=100)
 ```
 
+![Example 3a](https://github.com/rpylkkanen/exact-size-matplotlib/blob/main/examples/example_3a.png)\
+![Example 3b](https://github.com/rpylkkanen/exact-size-matplotlib/blob/main/examples/example_3b.png)\
+![Example 3c](https://github.com/rpylkkanen/exact-size-matplotlib/blob/main/examples/example_3c.png)\
+![Example 3d](https://github.com/rpylkkanen/exact-size-matplotlib/blob/main/examples/example_3d.png)\
+![Example 3e](https://github.com/rpylkkanen/exact-size-matplotlib/blob/main/examples/example_3e.png)\
+![Example 3f](https://github.com/rpylkkanen/exact-size-matplotlib/blob/main/examples/example_3f.png)
