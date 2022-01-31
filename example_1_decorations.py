@@ -33,7 +33,7 @@ ax.set_xticks([])
 ax.set_yticks([])
 
 # Text
-text = f'width={width:.2f}\nheight={height:.2f}'
+text = f'width={width:.2f}"\nheight={height:.2f}"'
 ax.text(
 	0.5, 
 	0.5, 
@@ -43,17 +43,19 @@ ax.text(
 	transform=ax.transAxes
 )
 
+ls = '--'
+
 # Left line
 x = [0.0, a.left()/figure_width]
 y = [0.5, 0.5]
-line = matplotlib.lines.Line2D(x, y, ls='--', transform=fig.transFigure)
+line = matplotlib.lines.Line2D(x, y, ls=ls, transform=fig.transFigure)
 fig.lines.append(line)
 
 # Left text
 ax.text(
 	numpy.average(x), 
 	numpy.average(y), 
-	f'{a.left():.2f}', 
+	f'{a.left():.2f}"', 
 	ha='center', 
 	va='bottom', 
 	transform=fig.transFigure
@@ -62,14 +64,14 @@ ax.text(
 # Right line
 x = [(a.left() + a.width())/figure_width, 1.0]
 y = [0.5, 0.5]
-line = matplotlib.lines.Line2D(x, y, ls='--', transform=fig.transFigure)
+line = matplotlib.lines.Line2D(x, y, ls=l, transform=fig.transFigure)
 fig.lines.append(line)
 
 # Right text
 ax.text(
 	numpy.average(x), 
 	numpy.average(y), 
-	f'{a.right():.2f}', 
+	f'{a.right():.2f}"', 
 	ha='center', 
 	va='bottom', 
 	transform=fig.transFigure
@@ -78,14 +80,14 @@ ax.text(
 # Top line
 x = [0.5, 0.5]
 y = [1.0, (figure_height - a.top())/figure_height]
-line = matplotlib.lines.Line2D(x, y, ls='--', transform=fig.transFigure)
+line = matplotlib.lines.Line2D(x, y, ls=ls, transform=fig.transFigure)
 fig.lines.append(line)
 
 # Top text
 ax.text(
 	numpy.average(x), 
 	numpy.average(y), 
-	f'{a.top():.2f}', 
+	f'{a.top():.2f}"', 
 	ha='right', 
 	va='center',
 	rotation=90, 
@@ -95,14 +97,14 @@ ax.text(
 # Bottom line
 x = [0.5, 0.5]
 y = [(figure_height - a.top() - a.height())/figure_height, 0.0]
-line = matplotlib.lines.Line2D(x, y, ls='--', transform=fig.transFigure)
+line = matplotlib.lines.Line2D(x, y, ls=ls, transform=fig.transFigure)
 fig.lines.append(line)
 
 # Bottom text
 ax.text(
 	numpy.average(x), 
 	numpy.average(y), 
-	f'{a.bottom():.2f}', 
+	f'{a.bottom():.2f}"', 
 	ha='right', 
 	va='center',
 	rotation=90, 

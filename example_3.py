@@ -3,9 +3,9 @@ import numpy
 
 numpy.random.seed(123)
 
-# Initialize the alignments (1x1 grid)
+# Initialize the alignments
 
-figwidth = 7
+figwidth = 5
 alignments = {
 	'a': Alignment(1, 6),
 	'b': Alignment(2, 3),	
@@ -33,11 +33,11 @@ for key, alignment in alignments.items():
 		a.set_bottom(small)
 
 # Panels a), b), c)
-for key, aspect in zip(['a', 'b', 'c'], [1/1, 4/3, 1/1]):
+for key, aspect in zip('abc', [1/1, 4/3, 1/1]):
 	alignment = alignments.get(key)
-	ncols = alignment.ncols()
+	# Alignment contains only spacing at this point.
 	space, _ = alignment.figure_size()
-	width = (figwidth - space)/ncols
+	width = (figwidth - space)/alignment.ncols()
 	for a in alignment.flatten():
 		a.set_aspect(aspect)
 		a.set_width(width)	
@@ -73,8 +73,12 @@ colors = {
 	'e': "#009688",
 	'f': "#8bc34a",
 }
-for (key, alignment), color in zip(alignments.items(), colors):
+
+for key, alignment in alignments.items():
+	
 	for i, a in enumerate(alignment.flatten()):
+		
+		# Plot data
 		ax = a.matplotlib()
 		n = 10
 		ax.plot(
@@ -82,10 +86,10 @@ for (key, alignment), color in zip(alignments.items(), colors):
 			numpy.random.randn(n),
 			color=colors.get(key),
 		)
-
 		ax.set_xticks([])
 		ax.set_yticks([])		
 
+		# Annotation
 		if i == 0:
 			ax.text(
 				0.0, 
