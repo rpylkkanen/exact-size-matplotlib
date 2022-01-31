@@ -2,6 +2,8 @@ from alignment import Alignment
 import numpy
 import random
 
+numpy.random.seed(123)
+
 # Initialize the alignment.
 nrows, ncols = 3, 3
 alignment = Alignment(nrows, ncols)
@@ -13,7 +15,7 @@ for a in alignment.flatten():
 # Specify figure size.
 figure_width, figure_height = 3, 3
 
-# Calculate size consumed by spacing (figure doesnt containe else).
+# Calculate size consumed by spacing (figure contains only spacing).
 spacing_width, spacing_height = alignment.figure_size()
 
 # Calculate available space for each axes.
@@ -27,7 +29,7 @@ for a in alignment.flatten():
 	a.set_size(width=axes_width, height=axes_height)
 
 # Plot some data.
-for i, a in enumerate(alignment.flatten()):
+for a in alignment.flatten():
 	ax = a.matplotlib()
 	n = 100
 	x = numpy.linspace(0, n, num=n)
@@ -40,8 +42,8 @@ for i, a in enumerate(alignment.flatten()):
 	)
 	ax.set_xticks([])
 	ax.set_yticks([])
-	ax.set_ylim(-nrows*ncols, nrows*ncols)
+	ax.set_ylim(-15, 15)
 
-# Save figure.
+# Save the figure.
 fig = alignment.figure()
 fig.savefig('examples/example_2.png', dpi=100)

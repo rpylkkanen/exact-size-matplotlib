@@ -15,12 +15,11 @@ alignments = {
 	'f': Alignment(2, 2),
 }
 
-
 # Configure spacings
 small = 0.025
-large = 0.2
+text = 0.20
+large = 0.20
 for key, alignment in alignments.items():
-	# Default
 	for a in alignment.flatten():
 		a.set_spacing(every=small)
 	for a in alignment.left():
@@ -31,6 +30,8 @@ for key, alignment in alignments.items():
 		a.set_top(large)
 	for a in alignment.bottom():
 		a.set_bottom(small)
+	if key in 'f':
+		a.set_top(text)
 
 # Panels a), b), c)
 for key, aspect in zip('abc', [1/1, 4/3, 1/1]):
@@ -75,19 +76,21 @@ colors = {
 }
 
 for key, alignment in alignments.items():
-	
+			
+	# Plot some data.
 	for i, a in enumerate(alignment.flatten()):
-		
-		# Plot data
 		ax = a.matplotlib()
-		n = 10
+		n = 100
+		x = numpy.linspace(0, n, num=n)
+		y = numpy.random.randn(n)
 		ax.plot(
-			numpy.linspace(0, 10, num=n), 
-			numpy.random.randn(n),
-			color=colors.get(key),
+			x, 
+			y,
+			color=colors[key],
 		)
 		ax.set_xticks([])
-		ax.set_yticks([])		
+		ax.set_yticks([])
+		ax.set_ylim(-15, 15)
 
 		# Annotation
 		if i == 0:
@@ -100,6 +103,9 @@ for key, alignment in alignments.items():
 				transform=ax.transAxes,
 				weight='semibold'
 			)
+
+		if key == 'f':
+			ax.set_title(f'text {i}', fontsize='small')
 
 	fig = alignment.figure()
 	fig.savefig(f'examples/example_3{key}.png', dpi=100)
