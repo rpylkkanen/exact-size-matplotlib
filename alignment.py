@@ -6,6 +6,9 @@ class Alignment:
 
   def __init__(self, nrows, ncols):
 
+    self._nrows = nrows
+    self._ncols = ncols
+
     self._figure = matplotlib.pyplot.figure()
 
     self._left, self._right, self._top, self._bottom = [], [], [], []
@@ -29,6 +32,12 @@ class Alignment:
         
         if col_idx == (len(row) - 1): 
           self._right.append(value)
+
+  def nrows(self):
+    return self._nrows
+
+  def ncols(self):
+    return self._ncols
 
   def figure(self):
     return self._figure
@@ -61,12 +70,14 @@ class Alignment:
         w = ax.total_width()
         h = ax.total_height()
         row_w += w
-        if row_w > fig_w: fig_w = row_w
-        if h > row_h: row_h = h
+        if row_w > fig_w: 
+          fig_w = row_w
+        if h > row_h: 
+          row_h = h
       fig_h += row_h
     size = (fig_w, fig_h)
     return size
-  
+
   def __repr__(self):
     return f'Alignment({self.array()})'
 

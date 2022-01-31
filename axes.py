@@ -155,16 +155,3 @@ class Axes:
 
 	def __repr__(self):
 		return f'Axes(width={self.width()}, height={self.height()}, aspect={self.aspect()}, spacing={self.spacing()}'
-
-"""
-fig_width = s.left() + width + s.right()
-fig_height = s.bottom() + height + s.top()
-fig_size = (fig_width, fig_height)
-
-fig = matplotlib.pyplot.figure(figsize=fig_size, dpi=dpi)
-
-h = [Size.Fixed(left), Size.Fixed(width)]
-v = [Size.Fixed(bottom), Size.Fixed(height)]
-divider = Divider(fig, (0, 0, 1, 1), h, v, aspect=False)
-ax = fig.add_axes(divider.get_position(), axes_locator=divider.new_locator(nx=1, ny=1))
-"""

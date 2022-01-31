@@ -7,7 +7,7 @@ numpy.random.seed(123)
 nrows, ncols = 3, 3
 alignment = Alignment(nrows, ncols)
 
-# Configure spacing (in inches).
+# Configure sizes (in inches).
 for a in alignment.flatten():
 	a.set_spacing(every=0.05)
 	a.set_size(width=1.0, height=1.0)
