@@ -1,6 +1,6 @@
-from spacing import Spacing
 import numpy
 from mpl_toolkits.axes_grid1 import Divider, Size
+from .spacing import Spacing
 
 class Axes:
 

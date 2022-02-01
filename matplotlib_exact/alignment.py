@@ -1,6 +1,6 @@
-import numpy
-from axes import Axes
 import matplotlib.pyplot
+import numpy
+from .axes import Axes
 
 class Alignment:
 

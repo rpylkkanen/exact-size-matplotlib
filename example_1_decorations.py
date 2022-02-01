@@ -1,4 +1,4 @@
-from alignment import Alignment
+from matplotlib_exact import Alignment
 import matplotlib
 import numpy
 
@@ -48,7 +48,12 @@ ls = '--'
 # Left line
 x = [0.0, a.left()/figure_width]
 y = [0.5, 0.5]
-line = matplotlib.lines.Line2D(x, y, ls=ls, transform=fig.transFigure)
+line = matplotlib.lines.Line2D(
+	x, 
+	y, 
+	ls=ls, 
+	transform=fig.transFigure
+)
 fig.lines.append(line)
 
 # Left text
@@ -64,7 +69,12 @@ ax.text(
 # Right line
 x = [(a.left() + a.width())/figure_width, 1.0]
 y = [0.5, 0.5]
-line = matplotlib.lines.Line2D(x, y, ls=l, transform=fig.transFigure)
+line = matplotlib.lines.Line2D(
+	x, 
+	y, 
+	ls=ls,
+	transform=fig.transFigure
+)
 fig.lines.append(line)
 
 # Right text

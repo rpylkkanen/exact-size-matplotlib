@@ -1,4 +1,4 @@
-from alignment import Alignment
+from matplotlib_exact import Alignment
 import numpy
 
 numpy.random.seed(123)

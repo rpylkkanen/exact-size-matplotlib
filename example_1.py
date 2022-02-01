@@ -1,4 +1,4 @@
-from alignment import Alignment
+from matplotlib_exact import Alignment
 
 # Initialize the alignment.
 nrows, ncols = 1, 1
