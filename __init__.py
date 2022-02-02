@@ -1,1 +1,1 @@
-from .matplotlib_exact import Alignment, Axes, Spacing
+from .matplotlib_exact import Alignment
