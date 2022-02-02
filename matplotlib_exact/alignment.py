@@ -60,6 +60,50 @@ class Alignment:
   def array(self):
     return self._array
 
+  def spacing_width(self):
+    fig_w = 0.0
+    for r, row in enumerate(self):
+      row_w = 0.0
+      for c, ax in enumerate(row):
+        w = ax.spacing_width()
+        row_w += w
+        if row_w > fig_w:
+          fig_w = row_w
+    return fig_w
+
+  def spacing_height(self):
+    fig_h = 0.0
+    for r, row in enumerate(self):
+      row_h = 0.0
+      for c, ax in enumerate(row):
+        h = ax.spacing_height()
+        if h > row_h:
+          row_h = h
+      fig_h += row_h
+    return fig_h
+
+  def figure_width(self):
+    fig_w = 0.0
+    for r, row in enumerate(self):
+      row_w = 0.0
+      for c, ax in enumerate(row):
+        w = ax.total_width()
+        row_w += w
+        if row_w > fig_w:
+          fig_w = row_w
+    return fig_w
+
+  def figure_height(self):
+    fig_h = 0.0
+    for r, row in enumerate(self):
+      row_h = 0.0
+      for c, ax in enumerate(row):
+        h = ax.total_height()
+        if h > row_h:
+          row_h = h
+      fig_h += row_h
+    return fig_h
+
   def figure_size(self):
     fig_w = 0.0
     fig_h = 0.0
