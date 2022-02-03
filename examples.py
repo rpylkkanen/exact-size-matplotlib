@@ -112,7 +112,7 @@ for r, row in enumerate(alignment):
 			ax.set_xlim(r - c, r + c)
 			a.annotate_rect()
 			a.annotate_text()
-			
+
 		if c == 2 and r != 2:
 			ax = a.matplotlib()	
 			ax.set_xticks([])
@@ -132,13 +132,9 @@ for r, row in enumerate(alignment):
 			a.annotate_text()
 
 # Add lines to figure
-from matplotlib.lines import Line2D
-
-fig = alignment.figure()
-fig.add_artist(Line2D([0.5, 0.5], [0.0, 1.0], ls=':', lw=1, color='k', alpha=0.5))
-fig.add_artist(Line2D([0.0, 1.0], [0.5, 0.5], ls=':', lw=1, color='k', alpha=0.5))
-fig_w, fig_h = fig.get_size_inches()
-fig.text(0.5, 0.5, f'Figure:\n{fig_w:.1f}x{fig_h:.1f}"', ha='center', va='center', fontsize='xx-small', bbox=dict(fc='white', alpha=0.5))
+alignment.annotate_rect(x=7/8, y=1/8)
+alignment.annotate_text(x=7/8, y=1/8)
 
 # Save
+fig = alignment.figure()
 fig.savefig('examples/example_3.png', dpi=300)

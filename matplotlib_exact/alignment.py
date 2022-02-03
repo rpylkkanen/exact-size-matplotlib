@@ -1,6 +1,7 @@
 import matplotlib.pyplot
 import numpy
 from .axes import Axes
+from matplotlib.lines import Line2D
 
 class Alignment:
 
@@ -109,6 +110,43 @@ class Alignment:
 
   def figure_size(self):
     return self.figure_width(), self.figure_height()
+
+
+  def annotate_rect(self, x=0.5, y=0.5, ls=':', lw=1, color='k', alpha=0.5):
+    fig = self.figure()
+    # | 
+    fig.add_artist(Line2D(
+      [x, x], 
+      [0.0, 1.0], 
+      ls=ls, 
+      lw=lw, 
+      color=color,
+      alpha=alpha,
+    ))
+    fig.add_artist(Line2D(
+      [0.0, 1.0], 
+      [y, y], 
+      ls=ls, 
+      lw=lw, 
+      color=color, 
+      alpha=alpha)
+    )
+
+  def annotate_text(self, x=0.5, y=0.5, fontsize='xx-small', bgcolor='white', bgalpha=0.5):
+    fig = self.figure()
+    fig_w, fig_h = fig.get_size_inches()
+    text = f'Figure:\n{fig_w:.1f}x{fig_h:.1f}"'
+    fig.text(
+      x,
+      y, 
+      text,
+      ha='center', 
+      va='center', 
+      fontsize=fontsize, 
+      bbox=dict(
+        fc='white', 
+        alpha=0.5)
+      )  
 
   def __repr__(self):
     return f'Alignment({self.array()})'
