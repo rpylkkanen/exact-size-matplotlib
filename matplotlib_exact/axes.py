@@ -1,5 +1,6 @@
 import numpy
 from mpl_toolkits.axes_grid1 import Divider, Size
+from matplotlib.patches import Rectangle
 from .spacing import Spacing
 
 class Axes:
@@ -152,6 +153,159 @@ class Axes:
 		ax = f.add_axes(divider.get_position(), axes_locator=divider.new_locator(nx=1, ny=1))
 
 		return ax
+
+	def annotate_text(self, center=False, left=False, right=False, top=False, bottom=False, every=False, fontsize='xx-small'):
+
+		ax = self.matplotlib()
+
+		if ax:
+
+			if center or every:
+				ax.text(
+					0.5,
+					0.5,
+					f'w: {self.width():.3f}"\nh: {self.height():.3f}"',
+					ha = 'center',
+					va = 'center',
+					fontsize=fontsize,
+				)
+
+			if left or every:
+				width = self.left()/self.width()
+				height = self.height()/self.height()
+				x = 0.0 - width
+				y = 0.0
+				ax.text(
+					0.0 - width/2,
+					0.5,
+					f'{self.left():.3f}"',
+					ha = 'center',
+					va = 'center',
+					fontsize=fontsize,
+					rotation=90
+				)
+
+			if right or every:
+				width = self.right()/self.width()
+				height = self.height()/self.height()
+				x = 1.0
+				y = 0.0
+				ax.text(
+					1.0 + width/2,
+					0.5,
+					f'{self.right():.3f}"',
+					ha = 'center',
+					va = 'center',
+					fontsize=fontsize,
+					rotation=90
+				)
+
+			if top or every:
+				width = self.width()/self.width()
+				height = self.top()/self.height()
+				x = 0.0
+				y = 1.0
+				ax.text(
+					0.5,
+					1.0 + height/2,
+					f'{self.top():.3f}"',
+					ha = 'center',
+					va = 'center',
+					fontsize=fontsize
+				)
+
+			if bottom or every:
+				width = self.width()/self.width()
+				height = self.bottom()/self.height()
+				x = 0.0
+				y = 0.0 - height
+				ax.text(
+					0.5,
+					0.0 - height/2,
+					f'{self.bottom():.3f}"',
+					ha = 'center',
+					va = 'center',
+					fontsize=fontsize
+				)
+
+	def annotate_rect(self, center=False, left=False, right=False, top=False, bottom=False, every=False):
+
+		ax = self.matplotlib()
+
+		if ax:
+
+			if center or every:
+				ax.axhline(sum(ax.get_ylim())/2, ls='-', alpha=0.5)
+				ax.axvline(sum(ax.get_xlim())/2, ls='-', alpha=0.5)
+
+			if left or every:
+				width = self.left()/self.width()
+				height = self.height()/self.height()
+				x = 0.0 - width
+				y = 0.0
+				rect = Rectangle(
+					(x, y),
+					width=width,
+					height=height,
+					color='#F16A70',
+					alpha=0.95,
+					transform=ax.transAxes,
+					clip_on=False,
+					linewidth=0.0,
+				)
+				ax.add_patch(rect)
+
+			if right or every:
+				width = self.right()/self.width()
+				height = self.height()/self.height()
+				x = 1.0
+				y = 0.0
+				rect = Rectangle(
+					(x, y),
+					width=width,
+					height=height,
+					color='#B1D877',
+					alpha=0.95,
+					transform=ax.transAxes,
+					clip_on=False,
+					linewidth=0.0,
+				)
+				ax.add_patch(rect)
+
+			if top or every:
+				width = self.width()/self.width()
+				height = self.top()/self.height()
+				x = 0.0
+				y = 1.0
+				rect = Rectangle(
+					(x, y),
+					width=width,
+					height=height,
+					color='#8CDCDA',
+					alpha=0.95,
+					transform=ax.transAxes,
+					clip_on=False,
+					linewidth=0.0,
+				)
+				ax.add_patch(rect)
+
+			if bottom or every:
+				width = self.width()/self.width()
+				height = self.bottom()/self.height()
+				x = 0.0
+				y = 0.0 - height
+				rect = Rectangle(
+					(x, y),
+					width=width,
+					height=height,
+					color='#4D4D4D',
+					alpha=0.95,
+					transform=ax.transAxes,
+					clip_on=False,
+					linewidth=0.0,
+				)
+				ax.add_patch(rect)
+
 
 	def __repr__(self):
 		return f'Axes(width={self.width()}, height={self.height()}, aspect={self.aspect()}, spacing={self.spacing()}'
