@@ -1,4 +1,4 @@
-# exact-size-matplotlib
+# matplotlib_exact
 
 A wrapper for displaying complex [matplotlib](https://matplotlib.org/) plots with exact spacings and sizes in inches.
 
@@ -128,7 +128,7 @@ for r, row in enumerate(alignment):
 			ax.set_xlim(-r - c, r + c)
 			a.annotate_rect()
 			a.annotate_text()
-			
+
 		if c == 1 and r != 1:
 			ax = a.matplotlib()	
 			ax.set_xticks([])
