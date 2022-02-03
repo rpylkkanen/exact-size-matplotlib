@@ -154,13 +154,22 @@ class Axes:
 
 		return ax
 
-	def annotate_text(self, center=False, left=False, right=False, top=False, bottom=False, every=False, fontsize='xx-small'):
+	def annotate_text(self, center=False, left=False, right=False, top=False, bottom=False, fontsize='xx-small'):
 
 		ax = self.matplotlib()
 
-		if ax:
+		if not ax:
 
-			if center or every:
+			print('Matplotlib axes missing for annotate_text().')
+
+		else:
+
+			if True in [left, right, top, bottom, center]:
+				every = False
+			else:
+				every = True
+
+			if every or center:
 				ax.text(
 					0.5,
 					0.5,
@@ -168,9 +177,10 @@ class Axes:
 					ha = 'center',
 					va = 'center',
 					fontsize=fontsize,
+					transform=ax.transAxes,
 				)
 
-			if left or every:
+			if every or left:
 				width = self.left()/self.width()
 				height = self.height()/self.height()
 				x = 0.0 - width
@@ -182,10 +192,11 @@ class Axes:
 					ha = 'center',
 					va = 'center',
 					fontsize=fontsize,
-					rotation=90
+					rotation=90,
+					transform=ax.transAxes,
 				)
 
-			if right or every:
+			if every or right:
 				width = self.right()/self.width()
 				height = self.height()/self.height()
 				x = 1.0
@@ -197,10 +208,11 @@ class Axes:
 					ha = 'center',
 					va = 'center',
 					fontsize=fontsize,
-					rotation=90
+					rotation=90,
+					transform=ax.transAxes,
 				)
 
-			if top or every:
+			if every or top:
 				width = self.width()/self.width()
 				height = self.top()/self.height()
 				x = 0.0
@@ -211,10 +223,11 @@ class Axes:
 					f'{self.top():.3f}"',
 					ha = 'center',
 					va = 'center',
-					fontsize=fontsize
+					fontsize=fontsize,
+					transform=ax.transAxes,
 				)
 
-			if bottom or every:
+			if every or bottom:
 				width = self.width()/self.width()
 				height = self.bottom()/self.height()
 				x = 0.0
@@ -225,20 +238,40 @@ class Axes:
 					f'{self.bottom():.3f}"',
 					ha = 'center',
 					va = 'center',
-					fontsize=fontsize
+					fontsize=fontsize,
+					transform=ax.transAxes,
 				)
 
-	def annotate_rect(self, center=False, left=False, right=False, top=False, bottom=False, every=False):
+	def annotate_rect(self, center=False, left=False, right=False, top=False, bottom=False, color=None, alpha=None):
 
 		ax = self.matplotlib()
 
-		if ax:
+		if not ax:
 
-			if center or every:
-				ax.axhline(sum(ax.get_ylim())/2, ls='-', alpha=0.5)
-				ax.axvline(sum(ax.get_xlim())/2, ls='-', alpha=0.5)
+			print('Matplotlib axes missing for annotate_rect().')
 
-			if left or every:
+		else:
+
+			if True in [left, right, top, bottom, center]:
+				every = False
+			else:
+				every = True
+
+			if every or center:
+				ax.axhline(
+					sum(ax.get_ylim())/2, 
+					ls='-', 
+					color=color or None,
+					alpha=alpha or 0.5,
+				)
+				ax.axvline(
+					sum(ax.get_xlim())/2, 
+					ls='-',
+					color=color or None,
+					alpha=alpha or 0.5,
+				)
+
+			if every or left:
 				width = self.left()/self.width()
 				height = self.height()/self.height()
 				x = 0.0 - width
@@ -247,15 +280,15 @@ class Axes:
 					(x, y),
 					width=width,
 					height=height,
-					color='#F16A70',
-					alpha=0.95,
+					color=color or '#F16A70',
+					alpha=alpha or 0.95,
 					transform=ax.transAxes,
 					clip_on=False,
 					linewidth=0.0,
 				)
 				ax.add_patch(rect)
 
-			if right or every:
+			if every or right:
 				width = self.right()/self.width()
 				height = self.height()/self.height()
 				x = 1.0
@@ -264,15 +297,15 @@ class Axes:
 					(x, y),
 					width=width,
 					height=height,
-					color='#B1D877',
-					alpha=0.95,
+					color=color or '#B1D877',
+					alpha=alpha or 0.95,
 					transform=ax.transAxes,
 					clip_on=False,
 					linewidth=0.0,
 				)
 				ax.add_patch(rect)
 
-			if top or every:
+			if every or top:
 				width = self.width()/self.width()
 				height = self.top()/self.height()
 				x = 0.0
@@ -281,15 +314,15 @@ class Axes:
 					(x, y),
 					width=width,
 					height=height,
-					color='#8CDCDA',
-					alpha=0.95,
+					color=color or '#8CDCDA',
+					alpha=alpha or 0.95,
 					transform=ax.transAxes,
 					clip_on=False,
 					linewidth=0.0,
 				)
 				ax.add_patch(rect)
 
-			if bottom or every:
+			if every or bottom:
 				width = self.width()/self.width()
 				height = self.bottom()/self.height()
 				x = 0.0
@@ -298,8 +331,8 @@ class Axes:
 					(x, y),
 					width=width,
 					height=height,
-					color='#4D4D4D',
-					alpha=0.95,
+					color=color or '#4D4D4D',
+					alpha=alpha or 0.95,
 					transform=ax.transAxes,
 					clip_on=False,
 					linewidth=0.0,

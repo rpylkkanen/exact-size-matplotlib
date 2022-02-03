@@ -82,6 +82,9 @@ class Alignment:
       fig_h += row_h
     return fig_h
 
+  def spacing_size(self):
+    return self.spacing_width(), self.spacing_height()
+
   def figure_width(self):
     fig_w = 0.0
     for r, row in enumerate(self):
@@ -105,22 +108,7 @@ class Alignment:
     return fig_h
 
   def figure_size(self):
-    fig_w = 0.0
-    fig_h = 0.0
-    for r, row in enumerate(self):
-      row_w = 0.0
-      row_h = 0.0
-      for c, ax in enumerate(row):
-        w = ax.total_width()
-        h = ax.total_height()
-        row_w += w
-        if row_w > fig_w: 
-          fig_w = row_w
-        if h > row_h: 
-          row_h = h
-      fig_h += row_h
-    size = (fig_w, fig_h)
-    return size
+    return self.figure_width(), self.figure_height()
 
   def __repr__(self):
     return f'Alignment({self.array()})'
