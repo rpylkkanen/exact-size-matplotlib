@@ -3,16 +3,21 @@ from mpl_toolkits.axes_grid1 import Divider, Size
 from matplotlib.patches import Rectangle
 from .spacing import Spacing
 
+
 class Axes:
 
 	def __init__(self, alignment=None, width=None, height=None, aspect=None):
 
-		self.set_alignment(alignment or Alignment(1, 1))
-		self.set_aspect(aspect or None)
-		self.set_width(width or 0.0)
-		self.set_height(height or 0.0)
+		self._alignment = alignment or None
+		self._aspect = aspect or None
+		self._width = width or 0.0
+		self._height = height or 0.0
 		self._spacing = Spacing(0.0, 0.0, 0.0, 0.0)
 		self._matplotlib = None
+		self.text_annotations = None
+		self.rect_annotations = None
+		self.line_annotations = None
+		self.matplotlib()
 
 	def set_alignment(self, alignment):
 		self._alignment = alignment
@@ -26,6 +31,7 @@ class Axes:
 
 	def set_aspect(self, aspect):
 		self._aspect = aspect
+		self.alignment().update()
 
 	def aspect(self):
 		return self._aspect
@@ -34,6 +40,7 @@ class Axes:
 		self._width = width
 		if self.aspect():
 			self._height = width / self.aspect()
+		self.alignment().update()
 
 	def width(self):
 		return self._width
@@ -45,6 +52,7 @@ class Axes:
 		self._height = height
 		if self.aspect():
 			self._width = height * self.aspect()
+		self.alignment().update()
 
 	def height(self):
 		return self._height
@@ -65,7 +73,7 @@ class Axes:
 			self.set_height(height)
 
 	def total_size(self):
-		return (self.total_width(), self.total_height())
+		return self.total_width(), self.total_height()
 
 	def set_spacing(self, left=None, right=None, top=None, bottom=None, every=None):
 		if every:
@@ -78,38 +86,42 @@ class Axes:
 			self.set_top(top)
 		if bottom:
 			self.set_bottom(bottom)
+		self.alignment().update()
 
 	def spacing(self):
 		return self._spacing
 
 	def set_left(self, left):
 		self.spacing().set_left(left)
+		self.alignment().update()
 
 	def left(self):
 		return self.spacing().left()
 
 	def set_right(self, right):
 		self.spacing().set_right(right)
+		self.alignment().update()
 
 	def right(self):
 		return self.spacing().right()
 
 	def set_bottom(self, bottom):
 		self.spacing().set_bottom(bottom)
+		self.alignment().update()
 
 	def bottom(self):
 		return self.spacing().bottom()
 
 	def set_top(self, top):
 		self.spacing().set_top(top)
+		self.alignment().update()
 
 	def top(self):
 		return self.spacing().top()
 
 	def matplotlib(self):
-		if self._matplotlib == None:
-			if self.width() and self.height():
-				self._matplotlib = self._convert_to_matplotlib()
+		if self.width() and self.height():
+			self._matplotlib = self._convert_to_matplotlib()
 		return self._matplotlib
 
 	def _convert_to_matplotlib(self):
@@ -147,16 +159,38 @@ class Axes:
 		bottom += self.bottom()
 		height = self.height()
 		
-		h = [Size.Fixed(left), Size.Fixed(width)]
-		v = [Size.Fixed(bottom), Size.Fixed(height)]
-		divider = Divider(f, (0, 0, 1, 1), h, v, aspect=False)
-		ax = f.add_axes(divider.get_position(), axes_locator=divider.new_locator(nx=1, ny=1))
+		# Create ax. 
+		if self._matplotlib is None:
+			h = [Size.Fixed(left), Size.Fixed(width)]
+			v = [Size.Fixed(bottom), Size.Fixed(height)]
+			divider = Divider(f, (0, 0, 1, 1), h, v, aspect=False)
+			ax = f.add_axes(
+				divider.get_position(), 
+				axes_locator=divider.new_locator(nx=1, ny=1)
+			)
+		else:
+			ax = self._matplotlib
+			h = [Size.Fixed(left), Size.Fixed(width)]
+			v = [Size.Fixed(bottom), Size.Fixed(height)]
+			divider = Divider(f, (0, 0, 1, 1), h, v, aspect=False)
+			ax.set_position(divider.get_position())
+			ax.set_axes_locator(divider.new_locator(nx=1, ny=1))
+
+		if self.text_annotations:
+			self.annotate_text()
+
+		if self.rect_annotations:
+			self.annotate_rect()
 
 		return ax
 
+	def annotate(self):
+		self.annotate_text()
+		self.annotate_rect()
+
 	def annotate_text(self, center=False, left=False, right=False, top=False, bottom=False, fontsize='xx-small'):
 
-		ax = self.matplotlib()
+		ax = self._matplotlib
 
 		if not ax:
 
@@ -169,82 +203,109 @@ class Axes:
 			else:
 				every = True
 
+			self.clear_text_annotations()
+
+			texts = []
+
 			if every or center:
-				ax.text(
+				tc = ax.text(
 					0.5,
 					0.5,
 					f'w: {self.width():.3f}"\nh: {self.height():.3f}"',
-					ha = 'center',
-					va = 'center',
+					ha='center',
+					va='center',
 					fontsize=fontsize,
 					transform=ax.transAxes,
 				)
+				texts.append(tc)
 
 			if every or left:
 				width = self.left()/self.width()
-				height = self.height()/self.height()
-				x = 0.0 - width
-				y = 0.0
-				ax.text(
+				tl = ax.text(
 					0.0 - width/2,
 					0.5,
 					f'{self.left():.3f}"',
-					ha = 'center',
-					va = 'center',
+					ha='center',
+					va='center',
 					fontsize=fontsize,
 					rotation=90,
 					transform=ax.transAxes,
 				)
+				texts.append(tl)
 
 			if every or right:
 				width = self.right()/self.width()
-				height = self.height()/self.height()
-				x = 1.0
-				y = 0.0
-				ax.text(
+				tr = ax.text(
 					1.0 + width/2,
 					0.5,
 					f'{self.right():.3f}"',
-					ha = 'center',
-					va = 'center',
+					ha='center',
+					va='center',
 					fontsize=fontsize,
 					rotation=90,
 					transform=ax.transAxes,
 				)
+				texts.append(tr)
 
 			if every or top:
-				width = self.width()/self.width()
 				height = self.top()/self.height()
-				x = 0.0
-				y = 1.0
-				ax.text(
+				tt = ax.text(
 					0.5,
 					1.0 + height/2,
 					f'{self.top():.3f}"',
-					ha = 'center',
-					va = 'center',
+					ha='center',
+					va='center',
 					fontsize=fontsize,
 					transform=ax.transAxes,
 				)
+				texts.append(tt)
 
 			if every or bottom:
-				width = self.width()/self.width()
 				height = self.bottom()/self.height()
-				x = 0.0
-				y = 0.0 - height
-				ax.text(
+				tb = ax.text(
 					0.5,
 					0.0 - height/2,
 					f'{self.bottom():.3f}"',
-					ha = 'center',
-					va = 'center',
+					ha='center',
+					va='center',
 					fontsize=fontsize,
 					transform=ax.transAxes,
 				)
+				texts.append(tb)
+
+			self.text_annotations = texts
+
+	def clear_text_annotations(self):
+
+		ax = self._matplotlib
+		if ax and self.text_annotations:
+			for text in self.text_annotations:
+				if text in ax.texts:
+					ax.texts.remove(text)
+			self.text_annotations = None
+
+	def clear_rect_annotations(self):
+
+		ax = self._matplotlib
+		if ax and self.rect_annotations:
+			for patch in self.rect_annotations:
+				if patch in ax.patches:
+					ax.patches.remove(patch)
+			self.rect_annotations = None
+
+		if ax and self.line_annotations:
+			for line in self.line_annotations:
+				if line in ax.lines:
+					ax.lines.remove(line)
+			self.line_annotations = None
+
+	def clear_annotations(self):
+		self.clear_text_annotations()
+		self.clear_rect_annotations()
 
 	def annotate_rect(self, center=False, left=False, right=False, top=False, bottom=False, color=None, alpha=None):
 
-		ax = self.matplotlib()
+		ax = self._matplotlib
 
 		if not ax:
 
@@ -257,19 +318,29 @@ class Axes:
 			else:
 				every = True
 
+			self.clear_rect_annotations()
+
 			if every or center:
-				ax.axhline(
+				lines = []
+				line1 = ax.axhline(
 					sum(ax.get_ylim())/2, 
 					ls='-', 
 					color=color or None,
 					alpha=alpha or 0.5,
+					zorder=-5,
 				)
-				ax.axvline(
+				lines.append(line1)
+				line2 = ax.axvline(
 					sum(ax.get_xlim())/2, 
 					ls='-',
 					color=color or None,
 					alpha=alpha or 0.5,
+					zorder=-5,
 				)
+				lines.append(line2)
+				self.line_annotations = lines
+
+			patches = []
 
 			if every or left:
 				width = self.left()/self.width()
@@ -285,8 +356,10 @@ class Axes:
 					transform=ax.transAxes,
 					clip_on=False,
 					linewidth=0.0,
+					zorder=-5,
 				)
-				ax.add_patch(rect)
+				patch = ax.add_patch(rect)
+				patches.append(patch)
 
 			if every or right:
 				width = self.right()/self.width()
@@ -302,8 +375,10 @@ class Axes:
 					transform=ax.transAxes,
 					clip_on=False,
 					linewidth=0.0,
+					zorder=-5,
 				)
-				ax.add_patch(rect)
+				patch = ax.add_patch(rect)
+				patches.append(patch)
 
 			if every or top:
 				width = self.width()/self.width()
@@ -319,8 +394,10 @@ class Axes:
 					transform=ax.transAxes,
 					clip_on=False,
 					linewidth=0.0,
+					zorder=-5,
 				)
-				ax.add_patch(rect)
+				patch = ax.add_patch(rect)
+				patches.append(patch)
 
 			if every or bottom:
 				width = self.width()/self.width()
@@ -336,9 +413,12 @@ class Axes:
 					transform=ax.transAxes,
 					clip_on=False,
 					linewidth=0.0,
+					zorder=-5,
 				)
-				ax.add_patch(rect)
+				patch = ax.add_patch(rect)
+				patches.append(patch)
 
+			self.rect_annotations = patches
 
 	def __repr__(self):
 		return f'Axes(width={self.width()}, height={self.height()}, aspect={self.aspect()}, spacing={self.spacing()}'
