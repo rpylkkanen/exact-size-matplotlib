@@ -8,35 +8,68 @@ class Alignment:
 
   def __init__(self, nrows, ncols):
 
+    self._figure = matplotlib.pyplot.figure(dpi=200)
+    self._nrows = None
+    self._ncols = None
+    self._left, self._right, self._top, self._bottom = None, None, None, None
+    self._array = None
+    self.text_annotation = None
+    self.rect_annotation = None
+    self.reset(nrows, ncols)
+
+  def reset(self, nrows, ncols, size=None, spacings=None, width=None, height=None, left=None, right=None, top=None, bottom=None, every=None):
+
+    self.figure().clear()
+
+    if size is not None:
+      width, height = size[0], size[1]
+
+    if spacings is not None:
+      if hasattr(spacings, '__iter__'):
+        left, right, top, bottom = spacings[0], spacings[1], spacings[2], spacings[3]
+      else:
+        every = spacings
+
     self._nrows = nrows
     self._ncols = ncols
+    self._left, self._right, self._top, self._bottom = [], [], [], []
+    self._array = numpy.empty(shape=(nrows, ncols), dtype=object)
+    self.calculate_edges()
+    self.clear_annotations()
+    self.set_sizes(width=width, height=height)
+    self.set_spacings(left=left, right=right, top=top, bottom=bottom, every=every)
+    self.update()
 
-    self._figure = matplotlib.pyplot.figure()
+  def calculate_edges(self):
 
     self._left, self._right, self._top, self._bottom = [], [], [], []
 
-    self._array = numpy.empty(shape=(nrows, ncols), dtype=object)
-
-    self.text_annotation = None
-    self.rect_annotation = None
-    
     for row_idx, row in enumerate(self.array()):
+
       for col_idx, value in (enumerate(row)):
 
-        value = Axes(self)
+        if value is None:
+          value = Axes(self)
         self.array()[row_idx][col_idx] = value
-        
-        if row_idx in [0]:            
+
+        if row_idx in [0]:
           self._top.append(value)
-        
-        if row_idx == (nrows - 1):     
+
+        if row_idx == (self.nrows() - 1):
           self._bottom.append(value)
-        
-        if col_idx in [0]:            
+
+        if col_idx in [0]:
           self._left.append(value)
-        
-        if col_idx == (len(row) - 1): 
+
+        if col_idx == (len(row) - 1):
           self._right.append(value)
+
+  def reshape(self, nrows, ncols):
+    self._array = numpy.reshape(self.array(), (nrows, ncols))
+    self._nrows = nrows
+    self._ncols = ncols
+    self.calculate_edges()
+    self.update()
 
   def nrows(self):
     return self._nrows
@@ -116,8 +149,12 @@ class Alignment:
     return self.figure_width(), self.figure_height()
 
   def annotate(self):
-    self.annotate_rect()
-    self.annotate_text()
+    x = 0.75
+    if self.nrows() > 1:
+      x = (self.nrows() - 1)/self.nrows()
+    y = 1 - x
+    self.annotate_rect(x=x, y=y)
+    self.annotate_text(x=x, y=y)
     for a in self.flatten():
       a.annotate()
 
@@ -139,7 +176,6 @@ class Alignment:
     fig = self.figure()
     if fig and self.text_annotation:
       if self.text_annotation in fig.texts:
-        print('Removing old text.')
         fig.texts.remove(self.text_annotation)
       self.text_annotation = None
 
@@ -202,6 +238,22 @@ class Alignment:
     for a in self.flatten():
       a.set_spacing(left=left, right=right, top=top, bottom=bottom, every=every)
 
+  def set_leftmost_sizes(self, width=None, height=None):
+    for a in self.left():
+      a.set_size(width=width, height=height)
+
+  def set_rightmost_sizes(self, width=None, height=None):
+    for a in self.right():
+      a.set_size(width=width, height=height)
+
+  def set_topmost_sizes(self, width=None, height=None):
+    for a in self.top():
+      a.set_size(width=width, height=height)
+
+  def set_bottommost_sizes(self, width=None, height=None):
+    for a in self.bottom():
+      a.set_size(width=width, height=height)
+
   def set_sizes(self, width=None, height=None):
     for a in self.flatten():
       a.set_size(width=width, height=height)
@@ -214,6 +266,67 @@ class Alignment:
     for a in self.flatten():
       ax = a.matplotlib()
       axes.append(ax)
+    if self.text_annotation is not None and self.rect_annotation is not None:
+      self.annotate()
+    return axes
+
+  def add_rows(self, nrows, size=None, spacings=None, width=None, height=None, left=None, right=None, top=None, bottom=None, every=None):
+    rows = self.nrows()
+    array = numpy.empty(shape=(nrows, self.ncols()), dtype=object)
+    self._array = numpy.concatenate((self.array(), array))
+    self._nrows = self.nrows() + nrows
+    self.calculate_edges()
+    self.update()
+    axes = self.array()[rows:]
+
+    if size is not None:
+      width, height = size[0], size[1]
+
+    if spacings is not None:
+      if hasattr(spacings, '__iter__'):
+        left, right, top, bottom = spacings[0], spacings[1], spacings[2], spacings[3]
+      else:
+        every = spacings
+
+    for a in axes.flatten():
+      a.set_size(width=width, height=height)
+      a.set_spacing(left=left, right=right, top=top, bottom=bottom, every=every)
+    return axes
+
+  def add_columns(self, ncols, size=None, spacings=None, width=None, height=None, left=None, right=None, top=None, bottom=None, every=None):
+    cols = self.ncols()
+    array = numpy.empty(shape=(self.nrows(), ncols), dtype=object)
+    self._array = numpy.concatenate((self.array(), array), axis=1)
+    self._ncols = self.ncols() + ncols
+    self.calculate_edges()
+    self.update()
+    axes = self.array()[:, cols:]
+    if size is not None:
+      width, height = size[0], size[1]
+
+    if spacings is not None:
+      if hasattr(spacings, '__iter__'):
+        left, right, top, bottom = spacings[0], spacings[1], spacings[2], spacings[3]
+      else:
+        every = spacings
+
+    for a in axes.flatten():
+      a.set_size(width=width, height=height)
+      a.set_spacing(left=left, right=right, top=top, bottom=bottom, every=every)
+    return axes
+
+    if size is not None:
+      width, height = size[0], size[1]
+
+    if spacings is not None:
+      if hasattr(spacings, '__iter__'):
+        left, right, top, bottom = spacings[0], spacings[1], spacings[2], spacings[3]
+      else:
+        every = spacings
+
+    for a in axes.flatten():
+      a.set_size(width=width, height=height)
+      a.set_spacing(left=left, right=right, top=top, bottom=bottom, every=every)
     return axes
 
   def __repr__(self):
@@ -229,4 +342,8 @@ class Alignment:
     return self.array().__iter__()
 
   def flatten(self):
-    return self.array().flatten()
+    arr = self.array()
+    if arr is not None:
+      return self.array().flatten()
+    else:
+      return []

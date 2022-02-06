@@ -2,13 +2,14 @@ import numpy
 from mpl_toolkits.axes_grid1 import Divider, Size
 from matplotlib.patches import Rectangle
 from .spacing import Spacing
+from matplotlib.lines import Line2D
 
 
 class Axes:
 
-	def __init__(self, alignment=None, width=None, height=None, aspect=None):
+	def __init__(self, alignment, width=None, height=None, aspect=None):
 
-		self._alignment = alignment or None
+		self._alignment = alignment
 		self._aspect = aspect or None
 		self._width = width or 0.0
 		self._height = height or 0.0
@@ -17,7 +18,6 @@ class Axes:
 		self.text_annotations = None
 		self.rect_annotations = None
 		self.line_annotations = None
-		self.matplotlib()
 
 	def set_alignment(self, alignment):
 		self._alignment = alignment
@@ -67,24 +67,24 @@ class Axes:
 		return self.top() + self.height() + self.bottom()
 
 	def set_size(self, width=None, height=None):
-		if width:
+		if width is not None:
 			self.set_width(width)
-		if height:
+		if height is not None:
 			self.set_height(height)
 
 	def total_size(self):
 		return self.total_width(), self.total_height()
 
 	def set_spacing(self, left=None, right=None, top=None, bottom=None, every=None):
-		if every:
+		if every is not None:
 			self._spacing = Spacing(every, every, every, every)
-		if left:
+		if left is not None:
 			self.set_left(left)
-		if right:
+		if right is not None:
 			self.set_right(right)
-		if top:
+		if top is not None:
 			self.set_top(top)
-		if bottom:
+		if bottom is not None:
 			self.set_bottom(bottom)
 		self.alignment().update()
 
@@ -133,6 +133,7 @@ class Axes:
 		f_size = f.get_size_inches()
 		f_size = (f_size[0], f_size[1])
 		if f_size != a_size:
+			print(f'Resizing figure: ({a_size[0]:.2f}, {a_size[1]:.2f})')
 			f.set_size_inches(a_size)
 
 		# Index.
@@ -192,11 +193,7 @@ class Axes:
 
 		ax = self._matplotlib
 
-		if not ax:
-
-			print('Matplotlib axes missing for annotate_text().')
-
-		else:
+		if ax is not None:
 
 			if True in [left, right, top, bottom, center]:
 				every = False
@@ -211,7 +208,7 @@ class Axes:
 				tc = ax.text(
 					0.5,
 					0.5,
-					f'w: {self.width():.3f}"\nh: {self.height():.3f}"',
+					f'i: ({self.index()[0]}, {self.index()[1]})\nw: {self.width():.3f}"\nh: {self.height():.3f}"',
 					ha='center',
 					va='center',
 					fontsize=fontsize,
@@ -219,7 +216,7 @@ class Axes:
 				)
 				texts.append(tc)
 
-			if every or left:
+			if (every or left) and self.width():
 				width = self.left()/self.width()
 				tl = ax.text(
 					0.0 - width/2,
@@ -233,7 +230,7 @@ class Axes:
 				)
 				texts.append(tl)
 
-			if every or right:
+			if (every or right) and self.width():
 				width = self.right()/self.width()
 				tr = ax.text(
 					1.0 + width/2,
@@ -247,7 +244,7 @@ class Axes:
 				)
 				texts.append(tr)
 
-			if every or top:
+			if (every or top) and self.height():
 				height = self.top()/self.height()
 				tt = ax.text(
 					0.5,
@@ -260,7 +257,7 @@ class Axes:
 				)
 				texts.append(tt)
 
-			if every or bottom:
+			if (every or bottom) and self.height():
 				height = self.bottom()/self.height()
 				tb = ax.text(
 					0.5,
@@ -295,8 +292,8 @@ class Axes:
 
 		if ax and self.line_annotations:
 			for line in self.line_annotations:
-				if line in ax.lines:
-					ax.lines.remove(line)
+				if line in ax._children:
+					ax._children.remove(line)
 			self.line_annotations = None
 
 	def clear_annotations(self):
@@ -307,11 +304,7 @@ class Axes:
 
 		ax = self._matplotlib
 
-		if not ax:
-
-			print('Matplotlib axes missing for annotate_rect().')
-
-		else:
+		if ax is not None:
 
 			if True in [left, right, top, bottom, center]:
 				every = False
@@ -322,27 +315,27 @@ class Axes:
 
 			if every or center:
 				lines = []
-				line1 = ax.axhline(
-					sum(ax.get_ylim())/2, 
-					ls='-', 
+				line1 = ax.add_artist(Line2D(
+					[0.5, 0.5],
+					[0.0, 1.0],
+					transform=ax.transAxes,
 					color=color or None,
 					alpha=alpha or 0.5,
-					zorder=-5,
-				)
+				))
 				lines.append(line1)
-				line2 = ax.axvline(
-					sum(ax.get_xlim())/2, 
-					ls='-',
+				line2 = ax.add_artist(Line2D(
+					[0.0, 1.0],
+					[0.5, 0.5],
+					transform=ax.transAxes,
 					color=color or None,
-					alpha=alpha or 0.5,
-					zorder=-5,
+					alpha=alpha or 0.5)
 				)
 				lines.append(line2)
 				self.line_annotations = lines
 
 			patches = []
 
-			if every or left:
+			if (every or left) and (self.width() and self.height()):
 				width = self.left()/self.width()
 				height = self.height()/self.height()
 				x = 0.0 - width
@@ -361,7 +354,7 @@ class Axes:
 				patch = ax.add_patch(rect)
 				patches.append(patch)
 
-			if every or right:
+			if (every or right) and (self.width() and self.height()):
 				width = self.right()/self.width()
 				height = self.height()/self.height()
 				x = 1.0
@@ -380,7 +373,7 @@ class Axes:
 				patch = ax.add_patch(rect)
 				patches.append(patch)
 
-			if every or top:
+			if (every or top) and (self.width() and self.height()):
 				width = self.width()/self.width()
 				height = self.top()/self.height()
 				x = 0.0
@@ -399,7 +392,7 @@ class Axes:
 				patch = ax.add_patch(rect)
 				patches.append(patch)
 
-			if every or bottom:
+			if (every or bottom) and (self.width() and self.height()):
 				width = self.width()/self.width()
 				height = self.bottom()/self.height()
 				x = 0.0
