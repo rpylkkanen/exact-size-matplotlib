@@ -20,6 +20,7 @@ class Alignment:
 
   def reset(self, nrows, ncols, size=None, spacings=None, width=None, height=None, left=None, right=None, top=None, bottom=None, every=None):
 
+    self.post_update_functions = []
     self.figure().clear()
 
     if size is not None:
