@@ -6,7 +6,7 @@ from matplotlib.lines import Line2D
 
 class Alignment:
 
-  def __init__(self, nrows, ncols):
+  def __init__(self, nrows, ncols, size=None, spacings=None, width=None, height=None, left=None, right=None, top=None, bottom=None, every=None):
 
     self._figure = matplotlib.pyplot.figure(dpi=200)
     self._nrows = None
@@ -15,7 +15,8 @@ class Alignment:
     self._array = None
     self.text_annotation = None
     self.rect_annotation = None
-    self.reset(nrows, ncols)
+    self.post_update_functions = []
+    self.reset(nrows, ncols, size=size, spacings=spacings, width=width, height=height, left=left, right=right, top=top, bottom=bottom, every=every)
 
   def reset(self, nrows, ncols, size=None, spacings=None, width=None, height=None, left=None, right=None, top=None, bottom=None, every=None):
 
@@ -268,6 +269,8 @@ class Alignment:
       axes.append(ax)
     if self.text_annotation is not None and self.rect_annotation is not None:
       self.annotate()
+    for f in self.post_update_functions:
+      f()
     return axes
 
   def add_rows(self, nrows, size=None, spacings=None, width=None, height=None, left=None, right=None, top=None, bottom=None, every=None):

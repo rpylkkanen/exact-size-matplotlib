@@ -36,10 +36,21 @@ class Axes:
 	def aspect(self):
 		return self._aspect
 
+	def check_broken_axes(self):
+		ax = self.matplotlib()
+		if ax is not None:
+			if hasattr(ax, '_broken_axes'):
+				spine = ax._broken_axes_spine
+				aspect = ax._broken_axes_aspect
+				color = ax._broken_axes_color
+				d = ax._broken_axes_d
+				ax.break_spine(spine, aspect=aspect, color=color, d=d)
+
 	def set_width(self, width):
 		self._width = width
 		if self.aspect():
 			self._height = width / self.aspect()
+		self.check_broken_axes()
 		self.alignment().update()
 
 	def width(self):
@@ -52,6 +63,7 @@ class Axes:
 		self._height = height
 		if self.aspect():
 			self._width = height * self.aspect()
+		self.check_broken_axes()
 		self.alignment().update()
 
 	def height(self):
@@ -122,6 +134,9 @@ class Axes:
 	def matplotlib(self):
 		if self.width() and self.height():
 			self._matplotlib = self._convert_to_matplotlib()
+		if self._matplotlib is not None:
+			self._matplotlib.get_width = self.width
+			self._matplotlib.get_height = self.height
 		return self._matplotlib
 
 	def _convert_to_matplotlib(self):
